@@ -1,0 +1,45 @@
+-- Create Employees Table
+CREATE TABLE Employees (
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    DeptID INT
+);
+
+-- Insert Data into Employees
+INSERT INTO Employees (EmpID, EmpName, DeptID) VALUES
+(1, 'John', 101),
+(2, 'Alice', 102),
+(3, 'Bob', 103),
+(4, 'Mike', NULL);
+
+-- Create Departments Table
+CREATE TABLE Departments (
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(50)
+);
+
+-- Insert Data into Departments
+INSERT INTO Departments (DeptID, DeptName) VALUES
+(101, 'HR'),
+(102, 'IT'),
+(104, 'Finance');
+
+-- 1. INNER JOIN Example
+SELECT Employees.EmpID, Employees.EmpName, Departments.DeptName
+FROM Employees
+INNER JOIN Departments ON Employees.DeptID = Departments.DeptID;
+
+-- 2. LEFT JOIN Example
+SELECT Employees.EmpID, Employees.EmpName, Departments.DeptName
+FROM Employees
+LEFT JOIN Departments ON Employees.DeptID = Departments.DeptID;
+
+-- 3. RIGHT JOIN Example
+SELECT Employees.EmpID, Employees.EmpName, Departments.DeptName
+FROM Employees
+RIGHT JOIN Departments ON Employees.DeptID = Departments.DeptID;
+
+-- 4. FULL JOIN Example (If your DB doesn't support FULL JOIN, use UNION of LEFT and RIGHT JOIN)
+SELECT Employees.EmpID, Employees.EmpName, Departments.DeptName
+FROM Employees
+FULL JOIN Departments ON Employees.DeptID = Departments.DeptID;
