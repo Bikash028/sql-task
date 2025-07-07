@@ -1,0 +1,60 @@
+
+-- Create Employees Table
+CREATE TABLE Employees (
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    DeptID INT,
+    Salary INT
+);
+
+-- Insert Data into Employees
+INSERT INTO Employees (EmpID, EmpName, DeptID, Salary) VALUES
+(1, 'John', 101, 55000),
+(2, 'Alice', 102, 62000),
+(3, 'Bob', 103, 48000),
+(4, 'Mike', 101, 71000),
+(5, 'Sara', 102, 53000),
+(6, 'David', 104, 46000);
+
+-- Create Departments Table
+CREATE TABLE Departments (
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(50)
+);
+
+-- Insert Data into Departments
+INSERT INTO Departments (DeptID, DeptName) VALUES
+(101, 'HR'),
+(102, 'IT'),
+(103, 'Finance'),
+(104, 'Operations');
+
+-- 1. Window Function Example: Rank employees within their department by salary
+SELECT EmpID, EmpName, DeptID, Salary,
+       RANK() OVER (PARTITION BY DeptID ORDER BY Salary DESC) AS SalaryRankInDept
+FROM Employees;
+
+-- 2. Subquery Example: Find employees who work in the 'IT' department
+SELECT EmpID, EmpName, Salary
+FROM Employees
+WHERE DeptID = (SELECT DeptID FROM Departments WHERE DeptName = 'IT');
+
+-- 3. CTE Example: Employees earning above 55000
+WITH HighEarners AS (
+    SELECT EmpID, EmpName, Salary
+    FROM Employees
+    WHERE Salary > 55000
+)
+SELECT *
+FROM HighEarners
+ORDER BY Salary DESC;
+
+-- 4. Final Report: Average salary by department using CTE and JOIN
+WITH DeptSalaries AS (
+    SELECT DeptID, AVG(Salary) AS AvgSalary
+    FROM Employees
+    GROUP BY DeptID
+)
+SELECT d.DeptName, ds.AvgSalary
+FROM DeptSalaries ds
+JOIN Departments d ON ds.DeptID = d.DeptID;
