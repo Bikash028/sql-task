@@ -1,0 +1,57 @@
+Task 3: SQL Data Migration and Integrity Verification
+-----------------------------------------------------
+
+Objective:
+Migrate data between two databases (e.g., from MySQL to PostgreSQL) and ensure data integrity.
+
+Migration Steps:
+
+1. MySQL: Export Data
+----------------------
+-- Export data to CSV
+SELECT * FROM Orders INTO OUTFILE '/tmp/orders_data.csv'
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+-- OR Export using mysqldump
+mysqldump -u root -p sales_db Orders > orders.sql
+
+
+2. PostgreSQL: Import Data
+--------------------------
+-- Create Table
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    OrderDate DATE,
+    CustomerName VARCHAR(100),
+    Amount DECIMAL(10,2)
+);
+
+-- Import data from CSV
+COPY Orders(OrderID, OrderDate, CustomerName, Amount)
+FROM '/tmp/orders_data.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- OR Import using SQL file
+psql -U postgres -d sales_db -f orders.sql
+
+
+3. Data Integrity Check
+-----------------------
+-- Count records in PostgreSQL
+SELECT COUNT(*) FROM Orders;
+
+-- Compare with MySQL record count to verify integrity
+
+
+4. Migration Summary Report
+----------------------------
+Source Database: MySQL
+Target Database: PostgreSQL
+Tables Migrated: Orders
+
+Total Records Migrated: [RecordCount]
+Data Integrity Check: Passed/Failed
+Migration Completed On: [Date]
+Tools Used: mysqldump, psql, CSV Import
