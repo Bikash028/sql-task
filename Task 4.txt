@@ -1,0 +1,75 @@
+#!/bin/bash
+# ============================================
+# DATABASE BACKUP AND RESTORE SCRIPT
+# Supports: MySQL & PostgreSQL
+# Author: Your Name
+# ============================================
+
+# --------- USER CONFIGURATION SECTION ---------
+DB_TYPE="mysql"            # Options: mysql | postgres
+DB_NAME="your_database"
+DB_USER="your_username"
+DB_PASSWORD="your_password"
+BACKUP_FILE="backup.sql"
+# ----------------------------------------------
+
+# Export password for PostgreSQL
+export PGPASSWORD=$DB_PASSWORD
+
+# --------- FUNCTION TO BACKUP DATABASE ---------
+backup_database() {
+  echo "🔁 Starting backup for $DB_TYPE..."
+
+  if [ "$DB_TYPE" == "mysql" ]; then
+    mysqldump -u $DB_USER -p$DB_PASSWORD $DB_NAME > $BACKUP_FILE
+  elif [ "$DB_TYPE" == "postgres" ]; then
+    pg_dump -U $DB_USER $DB_NAME > $BACKUP_FILE
+  else
+    echo "❌ Unsupported database type: $DB_TYPE"
+    exit 1
+  fi
+
+  echo "✅ Backup completed: $BACKUP_FILE"
+}
+
+# --------- FUNCTION TO RESTORE DATABASE ---------
+restore_database() {
+  echo "🔁 Starting restore for $DB_TYPE..."
+
+  if [ "$DB_TYPE" == "mysql" ]; then
+    mysql -u $DB_USER -p$DB_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+    mysql -u $DB_USER -p$DB_PASSWORD $DB_NAME < $BACKUP_FILE
+  elif [ "$DB_TYPE" == "postgres" ]; then
+    DB_EXISTS=$(psql -U $DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'")
+    if [ "$DB_EXISTS" != "1" ]; then
+      createdb -U $DB_USER $DB_NAME
+    fi
+    psql -U $DB_USER -d $DB_NAME -f $BACKUP_FILE
+  else
+    echo "❌ Unsupported database type: $DB_TYPE"
+    exit 1
+  fi
+
+  echo "✅ Restore completed from $BACKUP_FILE"
+}
+
+# --------- MENU ---------
+echo "================================="
+echo "DATABASE BACKUP AND RESTORE TOOL"
+echo "================================="
+echo "1. Backup Database"
+echo "2. Restore Database"
+read -p "Choose an option (1 or 2): " CHOICE
+
+case $CHOICE in
+  1)
+    backup_database
+    ;;
+  2)
+    restore_database
+    ;;
+  *)
+    echo "❌ Invalid choice."
+    exit 1
+    ;;
+esac
